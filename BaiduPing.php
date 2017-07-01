@@ -73,7 +73,9 @@ class BaiduPing
         curl_setopt($ch, CURLOPT_POSTFIELDS, $this->baiduXML);
         $res = curl_exec($ch);
         curl_close($ch);
+        $xmlstring = simplexml_load_string($res, 'SimpleXMLElement', LIBXML_NOCDATA);
+        $data = json_decode(json_encode($xmlstring), true);
 
-        return strpos($res, '<int>0</int>') >=0;
+        return $data['params']['param']['value']['int'] == 0;
     }
 }

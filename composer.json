@@ -1,0 +1,20 @@
+{
+  "name": "cheukpang/BaiduPing",
+  "description": "Baidu Ping",
+  "minimum-stability": "dev",
+  "license": "Apache-2.0",
+  "authors": [
+    {
+      "name": "kwan",
+      "email": "303198069@qq.com"
+    }
+  ],
+  "require": {
+    "ext-curl": "*"
+  },
+  "autoload": {
+    "psr-4": {
+      "Cheukpang\\": ""
+    }
+  }
+}

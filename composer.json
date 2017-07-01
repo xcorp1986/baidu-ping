@@ -1,6 +1,6 @@
 {
   "name": "cheukpang/baidu-ping",
-  "description": "Baidu Ping",
+  "description": "Baidu Ping Library",
   "minimum-stability": "dev",
   "license": "Apache-2.0",
   "authors": [

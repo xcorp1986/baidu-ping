@@ -25,34 +25,9 @@ class BaiduPing
      */
     private $rssurl;
     /**
-     * @var string $baiduXML 百度XML结构
-     */
-    private $baiduXML;
-    /**
      * @var string $baiduRPC 百度XML地址
      */
     private $baiduRPC = 'http://ping.baidu.com/ping/RPC2';
-
-    public function __construct($title, $arturl, $hosturl, $rssurl)
-    {
-        if (empty($title) || empty($arturl)) {
-            return false;
-        }
-        $this->title = $title;
-        $this->hosturl = $hosturl;
-        $this->rssurl = $rssurl;
-        $this->arturl = $arturl;
-        $this->baiduXML = '<?xml version=\"1.0\" encoding=\"UTF-8\"?>';
-        $this->baiduXML .= '<methodCall>';
-        $this->baiduXML .= '  <methodName>weblogUpdates.extendedPing</methodName>';
-        $this->baiduXML .= '      <params>';
-        $this->baiduXML .= '      <param><value><string>'.$this->hosturl.'</string></value></param>';
-        $this->baiduXML .= '      <param><value><string>'.$this->title.'</string></value></param>';
-        $this->baiduXML .= '      <param><value><string>'.$this->arturl.'</string></value></param>';
-        $this->baiduXML .= '      <param><value><string>'.$this->rssurl.'</string></value></param>';
-        $this->baiduXML .= '  </params>';
-        $this->baiduXML .= '</methodCall>';
-    }
 
     /**
      * @return bool 返回结果为true 表示成功
@@ -70,12 +45,77 @@ class BaiduPing
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
         curl_setopt($ch, CURLOPT_POST, 1);
         curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, $this->baiduXML);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $this->getBaiduXML());
         $res = curl_exec($ch);
         curl_close($ch);
         $xmlstring = simplexml_load_string($res, 'SimpleXMLElement', LIBXML_NOCDATA);
         $data = json_decode(json_encode($xmlstring), true);
 
         return $data['params']['param']['value']['int'] == 0;
+    }
+
+    /**
+     * @param string $title
+     * @return BaiduPing
+     */
+    public function setTitle(string $title): BaiduPing
+    {
+        $this->title = $title;
+
+        return $this;
+    }
+
+    /**
+     * @param string $hosturl
+     * @return BaiduPing
+     */
+    public function setHosturl(string $hosturl): BaiduPing
+    {
+        $this->hosturl = $hosturl;
+
+        return $this;
+    }
+
+    /**
+     * @param string $arturl
+     * @return BaiduPing
+     */
+    public function setArturl(string $arturl): BaiduPing
+    {
+        $this->arturl = $arturl;
+
+        return $this;
+    }
+
+    /**
+     * @param string $rssurl
+     * @return BaiduPing
+     */
+    public function setRssurl(string $rssurl): BaiduPing
+    {
+        $this->rssurl = $rssurl;
+
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getBaiduXML(): string
+    {
+        $xml = <<<EOF
+<?xml version="1.0" encoding="UTF-8"?>
+<methodCall>
+    <methodName>weblogUpdates.extendedPing</methodName>
+        <params>
+            <param><value><string>%s</string></value></param>
+            <param><value><string>%s</string></value></param>
+            <param><value><string>%s</string></value></param>
+            <param><value><string>%s</string></value></param>
+    </params>
+</methodCall>
+EOF;
+
+        return sprintf($xml, $this->hosturl, $this->title, $this->arturl, $this->rssurl);
     }
 }

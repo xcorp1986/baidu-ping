@@ -2,6 +2,8 @@
 
 namespace Cheukpang;
 
+use Requests;
+
 /**
  * Class BaiduPing
  * @package Cheukpang
@@ -25,33 +27,27 @@ class BaiduPing
      */
     private $rssurl;
     /**
-     * @var string $baiduRPC 百度XML地址
+     * @const string 百度XML地址
      */
-    private $baiduRPC = 'http://ping.baidu.com/ping/RPC2';
+    const BaiduRPC = 'http://ping.baidu.com/ping/RPC2';
 
     /**
      * @return bool 返回结果为true 表示成功
      */
-    public function ping()
+    public function ping(): bool
     {
-        $ch = curl_init();
         $headers = [
             'User-Agent: request',
             'Host: ping.baidu.com',
             'Content-Type: text/xml',
         ];
-        curl_setopt($ch, CURLOPT_URL, $this->baiduRPC);
-        curl_setopt($ch, CURLOPT_HEADER, 1);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-        curl_setopt($ch, CURLOPT_POST, 1);
-        curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, $this->getBaiduXML());
-        $res = curl_exec($ch);
-        curl_close($ch);
-        $xmlstring = simplexml_load_string($res, 'SimpleXMLElement', LIBXML_NOCDATA);
-        $data = json_decode(json_encode($xmlstring), true);
+        $res = Requests::post(self::BaiduRPC, $headers, $this->getBaiduXML());
+        if (200 === $res->status_code) {
+            $xmlstring = simplexml_load_string($res->body, 'SimpleXMLElement', LIBXML_NOCDATA);
+            $data = json_decode(json_encode($xmlstring), true);
 
-        return $data['params']['param']['value']['int'] == 0;
+            return $data['params']['param']['value']['int'] == 0;
+        }
     }
 
     /**
